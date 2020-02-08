@@ -3,7 +3,10 @@ package app;
 import javax.swing.UnsupportedLookAndFeelException;
 import pattern.controller.FrmLoginController;
 import pattern.view.FrmLogin;
-
+/**
+ *
+ * @author Jhancarlo Silva Ochoa
+ */
 public class App {
     //view
     private static FrmLogin frmLogin;
@@ -18,3 +21,4 @@ public class App {
         frmLoginController.initController();
     }
 }
+

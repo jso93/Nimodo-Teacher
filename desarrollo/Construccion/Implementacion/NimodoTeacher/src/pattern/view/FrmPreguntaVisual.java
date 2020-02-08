@@ -28,7 +28,7 @@ public class FrmPreguntaVisual extends javax.swing.JInternalFrame {
         btnCreate = new javax.swing.JButton();
         btnBuscarImagen = new javax.swing.JButton();
         jLabel9 = new javax.swing.JLabel();
-        txtAudio = new javax.swing.JLabel();
+        txtImagen = new javax.swing.JLabel();
         btnBuscarDesempenio = new javax.swing.JButton();
         txtEstilo = new javax.swing.JTextField();
         txtDesempenio = new javax.swing.JLabel();
@@ -97,7 +97,7 @@ public class FrmPreguntaVisual extends javax.swing.JInternalFrame {
         jLabel9.setFont(new java.awt.Font("Tahoma", 1, 11)); // NOI18N
         jLabel9.setText("IMAGEN:");
 
-        txtAudio.setText("---");
+        txtImagen.setText("---");
 
         btnBuscarDesempenio.setFont(new java.awt.Font("Tahoma", 1, 11)); // NOI18N
         btnBuscarDesempenio.setIcon(new javax.swing.ImageIcon(getClass().getResource("/images/search.png"))); // NOI18N
@@ -204,10 +204,6 @@ public class FrmPreguntaVisual extends javax.swing.JInternalFrame {
                     .addComponent(txtDesempeñoDescripcion))
                 .addGap(10, 10, 10)
                 .addGroup(jPanel1Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-                    .addGroup(jPanel1Layout.createSequentialGroup()
-                        .addComponent(btnNew, javax.swing.GroupLayout.PREFERRED_SIZE, 115, javax.swing.GroupLayout.PREFERRED_SIZE)
-                        .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED, 76, Short.MAX_VALUE)
-                        .addComponent(btnCreate, javax.swing.GroupLayout.PREFERRED_SIZE, 125, javax.swing.GroupLayout.PREFERRED_SIZE))
                     .addComponent(jPanel4, javax.swing.GroupLayout.Alignment.TRAILING, javax.swing.GroupLayout.PREFERRED_SIZE, 316, Short.MAX_VALUE)
                     .addComponent(txtAdivinanza, javax.swing.GroupLayout.Alignment.TRAILING)
                     .addComponent(txtDescuido, javax.swing.GroupLayout.Alignment.TRAILING)
@@ -219,9 +215,13 @@ public class FrmPreguntaVisual extends javax.swing.JInternalFrame {
                     .addComponent(txtEstilo, javax.swing.GroupLayout.Alignment.TRAILING)
                     .addComponent(txtDesempenio, javax.swing.GroupLayout.Alignment.TRAILING, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
                     .addGroup(jPanel1Layout.createSequentialGroup()
+                        .addComponent(btnNew, javax.swing.GroupLayout.PREFERRED_SIZE, 115, javax.swing.GroupLayout.PREFERRED_SIZE)
+                        .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
+                        .addComponent(btnCreate, javax.swing.GroupLayout.PREFERRED_SIZE, 125, javax.swing.GroupLayout.PREFERRED_SIZE))
+                    .addGroup(jPanel1Layout.createSequentialGroup()
                         .addGroup(jPanel1Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-                            .addComponent(txtAudio, javax.swing.GroupLayout.PREFERRED_SIZE, 294, javax.swing.GroupLayout.PREFERRED_SIZE)
-                            .addComponent(txtDescripcion, javax.swing.GroupLayout.PREFERRED_SIZE, 315, javax.swing.GroupLayout.PREFERRED_SIZE))
+                            .addComponent(txtImagen, javax.swing.GroupLayout.PREFERRED_SIZE, 294, javax.swing.GroupLayout.PREFERRED_SIZE)
+                            .addComponent(txtDescripcion, javax.swing.GroupLayout.PREFERRED_SIZE, 308, javax.swing.GroupLayout.PREFERRED_SIZE))
                         .addGap(0, 0, Short.MAX_VALUE)))
                 .addContainerGap())
         );
@@ -263,7 +263,7 @@ public class FrmPreguntaVisual extends javax.swing.JInternalFrame {
                 .addComponent(btnBuscarImagen)
                 .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.UNRELATED)
                 .addGroup(jPanel1Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
-                    .addComponent(txtAudio, javax.swing.GroupLayout.PREFERRED_SIZE, 14, javax.swing.GroupLayout.PREFERRED_SIZE)
+                    .addComponent(txtImagen, javax.swing.GroupLayout.PREFERRED_SIZE, 14, javax.swing.GroupLayout.PREFERRED_SIZE)
                     .addComponent(jLabel9))
                 .addGap(36, 36, 36)
                 .addGroup(jPanel1Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
@@ -275,11 +275,11 @@ public class FrmPreguntaVisual extends javax.swing.JInternalFrame {
                     .addComponent(jLabel8))
                 .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.UNRELATED)
                 .addComponent(jPanel4, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
-                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED, 34, Short.MAX_VALUE)
+                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED, 71, Short.MAX_VALUE)
                 .addGroup(jPanel1Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
-                    .addComponent(btnNew)
-                    .addComponent(btnCreate))
-                .addGap(42, 42, 42))
+                    .addComponent(btnCreate)
+                    .addComponent(btnNew))
+                .addContainerGap())
         );
 
         jPanel2.setBorder(javax.swing.BorderFactory.createTitledBorder(null, "LISTA PREGUNTAS VISUALES", javax.swing.border.TitledBorder.DEFAULT_JUSTIFICATION, javax.swing.border.TitledBorder.DEFAULT_POSITION, new java.awt.Font("Tahoma", 1, 11))); // NOI18N
@@ -419,13 +419,13 @@ public class FrmPreguntaVisual extends javax.swing.JInternalFrame {
     public javax.swing.JRadioButton successC;
     public javax.swing.JTable table;
     public javax.swing.JTextField txtAdivinanza;
-    public javax.swing.JLabel txtAudio;
     public javax.swing.JTextField txtBuscar;
     public javax.swing.JTextField txtDescripcion;
     public javax.swing.JTextField txtDescuido;
     public javax.swing.JLabel txtDesempenio;
     public javax.swing.JLabel txtDesempeñoDescripcion;
     public javax.swing.JTextField txtEstilo;
+    public javax.swing.JLabel txtImagen;
     public javax.swing.JComboBox<String> txtNivel;
     public javax.swing.JComboBox<String> txtPeriodo;
     public javax.swing.JTextField txtPrimeraAlternativa;

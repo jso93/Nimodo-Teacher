@@ -28,6 +28,7 @@ import pattern.dao.AudioDao;
 import pattern.dao.DocenteAulaDao;
 import pattern.dao.EstiloDao;
 import pattern.dao.DesempeñoDao;
+import pattern.dao.ImagenDao;
 import pattern.dao.MatrizDao;
 import pattern.dao.NivelDao;
 import pattern.dao.PeriodoDao;
@@ -36,6 +37,7 @@ import pattern.model.Alternativa;
 import pattern.model.Audio;
 import pattern.model.Estilo;
 import pattern.model.Desempeño;
+import pattern.model.Imagen;
 import pattern.model.Matriz;
 import pattern.model.Nivel;
 import pattern.model.Periodo;
@@ -49,6 +51,7 @@ public class FrmPreguntaAuditivaController extends KeyAdapter implements IView,I
     private Pregunta preguntaNuevo,preguntaActual;
     private Alternativa primeraAlternativaNuevo,primeraAlternativaActual,segundaAlternativaNuevo,segundaAlternativaActual,terceraAlternativaNuevo,terceraAlternativaActual;
     private Audio audioNuevo,audioActual;
+    private Imagen imagenNuevo,imagenActual;
     //view
     private final FrmPreguntaAuditiva frmPreguntaAuditiva;
     private final FrmDesempeñoBusqueda frmDesempeñoBusqueda;
@@ -61,6 +64,7 @@ public class FrmPreguntaAuditivaController extends KeyAdapter implements IView,I
     private final PreguntaDao preguntaDao;
     private final AlternativaDao alternativaDao;
     private final AudioDao audioDao;
+    private final ImagenDao imagenDao;
     private final EstiloDao estiloDao;
     private final NivelDao nivelDao;
     private final DesempeñoDao desempeñoDao;
@@ -71,6 +75,7 @@ public class FrmPreguntaAuditivaController extends KeyAdapter implements IView,I
     private int row;
     private List<Pregunta> listaPregunta;
     private List<Audio> listaAudio;
+    private List<Imagen> listaImagen;
     private final List<Alternativa> listaAlternativaNuevo;
     private final List<Alternativa> listaAternativaActual;
     private List<Alternativa> listaAlternativa;
@@ -81,20 +86,25 @@ public class FrmPreguntaAuditivaController extends KeyAdapter implements IView,I
     private List<Periodo> listaPeriodo;
     private List<List<String>> listaDocente;
     private DefaultTableModel model;
-    private final JFileChooser fileChooser = new JFileChooser();
-    private final FileNameExtensionFilter filter = new FileNameExtensionFilter("OGG", "ogg");
-    private File namepathNuevo,namepathActual;
+    private final JFileChooser fileChooserAudio = new JFileChooser();
+    private final JFileChooser fileChooserImagen = new JFileChooser();
+    private final FileNameExtensionFilter filterAudio = new FileNameExtensionFilter("OGG", "ogg");
+    private final FileNameExtensionFilter filterImagen = new FileNameExtensionFilter("PNG", "png");
+    private File namepathNuevoAudio,namepathActualAudio,namepathNuevoImagen,namepathActualImagen;
     private double descuido,descuido_redondeado,adivinanza,adivinanza_redondeado;
     private String txtDescripcion;
     private double txtDescuido,txtAdivinanza;
     private String txtPeriodo,txtNivel,txtEstilo;
     private int idNivel,idEstilo,idMatriz,idPeriodo, idDocenteAula;
     private boolean successA = false, successB = false, successC = false;
-    private final String urlImagenDestino = "C:\\wamp64\\www\\Nimodo\\NimodoStudent\\pdo\\audio\\";
+    private final String urlAudioDestino = "C:\\wamp64\\www\\Nimodo\\NimodoStudent\\pdo\\audio\\";
+    private final String urlImagenDestino = "C:\\wamp64\\www\\Nimodo\\NimodoStudent\\pdo\\images\\";
     private String nombreOGG;
+    private String nombrePNG;
     private final Object [] rowTable = new Object[7];
     private int aux;
-    private boolean estadoChooser = false;
+    private boolean estadoChooserAudio = false;
+    private boolean estadoChooserImagen = false;
     private final List<String> persona;
     private String dniDocente;
     
@@ -103,6 +113,7 @@ public class FrmPreguntaAuditivaController extends KeyAdapter implements IView,I
         this.preguntaDao = new PreguntaDao();
         this.alternativaDao = new AlternativaDao();
         this.audioDao = new AudioDao();
+        this.imagenDao = new ImagenDao();
         this.estiloDao = new EstiloDao();
         this.nivelDao = new NivelDao();
         this.desempeñoDao = new DesempeñoDao();
@@ -129,6 +140,7 @@ public class FrmPreguntaAuditivaController extends KeyAdapter implements IView,I
         frmPreguntaAuditiva.btnBuscarDesempenio.addActionListener(e-> buscarDesempeño());
         frmPreguntaAuditiva.btnDesempenioInfo.addActionListener(e-> verDetalleDesempeño());
         frmPreguntaAuditiva.btnBuscarAudio.addActionListener(e-> buscarAudio());
+        frmPreguntaAuditiva.btnBuscarImagen.addActionListener(e-> buscarImagen());
         frmPreguntaAuditiva.table.getSelectionModel().addListSelectionListener(this);
         frmPreguntaAuditiva.txtBuscar.addKeyListener(this);
         frmPreguntaAuditiva.txtNivel.addItemListener(this);
@@ -197,9 +209,25 @@ public class FrmPreguntaAuditivaController extends KeyAdapter implements IView,I
                     //nombre del OGG
                     nombreOGG = preguntaDao.getIdPregunta()+".ogg";
                     //creamos audio
-                    audioNuevo = new Audio(0,urlImagenDestino+nombreOGG, preguntaDao.getIdPregunta());
+                    audioNuevo = new Audio(0,urlAudioDestino+nombreOGG, preguntaDao.getIdPregunta());
                     guardarAudio();//guardamos OGG en el directorio
-                    if(audioDao.Create(audioNuevo)){JOptionPane.showMessageDialog(null,"Registro exitoso!"); refreshView();}
+                    if(audioDao.Create(audioNuevo)){
+                        //JOptionPane.showMessageDialog(null,"Registro exitoso!"); 
+                        //refreshView();
+                        //imagen
+                        if(!frmPreguntaAuditiva.txtImagen.getText().isEmpty()){
+                            //nombre del png
+                            nombrePNG = preguntaDao.getIdPregunta()+".png";
+                            //creamos imagen
+                            imagenNuevo = new Imagen(0,urlImagenDestino+nombrePNG, preguntaDao.getIdPregunta());
+                            guardarImagen();//guardamos png en el directorio
+                            if(imagenDao.Create(imagenNuevo)){JOptionPane.showMessageDialog(null,"Registro exitoso!"); refreshView();}
+                        }else{
+                            System.out.println("sin imagen");
+                            JOptionPane.showMessageDialog(null,"Registro exitoso!"); refreshView();
+                        }
+                    }
+                    
                     ////reseteamos valores
                     successA = false;
                     successB = false;
@@ -224,6 +252,7 @@ public class FrmPreguntaAuditivaController extends KeyAdapter implements IView,I
         cargarDesempeños();
         cargarMatriz();
         cargarAudios();
+        cargarImagenes();
         cargarAlternativas();
         cargarPreguntas();
     }
@@ -316,19 +345,58 @@ public class FrmPreguntaAuditivaController extends KeyAdapter implements IView,I
                         }
                         //nombre del OGG
                         nombreOGG = preguntaActual.getIdPregunta()+".ogg";
-                        namepathActual = new File(audioActual.getAudio());
+                        namepathActualAudio = new File(audioActual.getAudio());
                         //AUDIO NUEVO
-                        namepathNuevo = fileChooser.getSelectedFile();
-                        if(estadoChooser){
-                        namepathNuevo = fileChooser.getSelectedFile();//si selecciona el chooser 
+                        namepathNuevoAudio = fileChooserAudio.getSelectedFile();
+                        if(estadoChooserAudio){
+                        namepathNuevoAudio = fileChooserAudio.getSelectedFile();//si selecciona el chooser 
                         }else{
-                        namepathNuevo = namepathActual; // si no selecciona el chooser   
+                        namepathNuevoAudio = namepathActualAudio; // si no selecciona el chooser   
                         }
-                        estadoChooser = false;
+                        estadoChooserAudio = false;
                         guardarAudio();
                         ////reseteamos valores
-                        JOptionPane.showMessageDialog(null,"Actualización exitosa!");
-                        refreshView();
+                        //JOptionPane.showMessageDialog(null,"Actualización exitosa!");
+                        //refreshView();
+                        //IMAGEN ACTUAL
+                        imagenActual = new Imagen();
+                        for (int i = 0; i < listaImagen.size() ; i++) {//path imagen
+                            if(preguntaActual.getIdPregunta() == listaImagen.get(i).getIdPregunta()){
+                                imagenActual.setImagen(listaImagen.get(i).getImagen());
+                            }
+                        }
+                        //imagen
+                        if(imagenActual.getImagen()!=null){
+                            //nombre del png
+                            nombrePNG = preguntaActual.getIdPregunta()+".png";
+                            namepathActualImagen = new File(imagenActual.getImagen());
+                            //IMAGEN NUEVO
+                            namepathNuevoImagen = fileChooserImagen.getSelectedFile();
+                            if(estadoChooserImagen){
+                            namepathNuevoImagen = fileChooserImagen.getSelectedFile();//si selecciona el chooser 
+                            }else{
+                            namepathNuevoImagen = namepathActualImagen; // si no selecciona el chooser   
+                            }
+                            estadoChooserImagen = false;
+                            guardarImagen();
+                            ////reseteamos valores
+                            JOptionPane.showMessageDialog(null,"Actualización exitosa!");
+                            refreshView();    
+                        }else{
+                            if(!frmPreguntaAuditiva.txtImagen.getText().isEmpty()){
+                                //nombre del png
+                                nombrePNG = preguntaActual.getIdPregunta()+".png";
+                                //creamos imagen
+                                imagenNuevo = new Imagen(0,urlImagenDestino+nombrePNG, preguntaActual.getIdPregunta());
+                                guardarImagen();//guardamos png en el directorio
+                                if(imagenDao.Create(imagenNuevo)){JOptionPane.showMessageDialog(null,"Actualización exitosa!"); refreshView();}    
+                            }else{
+                                estadoChooserImagen = false;
+                                System.out.println("la pregunta sigue sin tener imagen");
+                                JOptionPane.showMessageDialog(null,"Actualización exitosa!");
+                                refreshView();
+                            }
+                        }
                         successA = false;
                         successB = false;
                         successC = false;
@@ -366,8 +434,19 @@ public class FrmPreguntaAuditivaController extends KeyAdapter implements IView,I
                             audioActual.setAudio(listaAudio.get(i).getAudio());
                         }
                     }
-                    namepathActual = new File(audioActual.getAudio());
-                    namepathActual.delete();//eliminamos el OGG que existe
+                    namepathActualAudio = new File(audioActual.getAudio());
+                    namepathActualAudio.delete();//eliminamos el OGG que existe
+                    //IMAGEN ACTUAL
+                    imagenActual = new Imagen();
+                    for (int i = 0; i < listaImagen.size() ; i++) {//path imagen
+                        if(preguntaActual.getIdPregunta() == listaImagen.get(i).getIdPregunta()){
+                            imagenActual.setImagen(listaImagen.get(i).getImagen());
+                        }
+                    }
+                    if(imagenActual.getImagen()!=null){
+                        namepathActualImagen = new File(imagenActual.getImagen());
+                        namepathActualImagen.delete();//eliminamos el PNG que existe
+                    }
                     JOptionPane.showMessageDialog(null,"Pregunta eliminada!");  
                 }else{
                     JOptionPane.showMessageDialog(null,"Error al eliminar!","Mensaje",JOptionPane.ERROR_MESSAGE);
@@ -386,6 +465,7 @@ public class FrmPreguntaAuditivaController extends KeyAdapter implements IView,I
         frmPreguntaAuditiva.txtDesempenio.setText("");
         frmPreguntaAuditiva.txtDesempeñoDescripcion.setText("");
         frmPreguntaAuditiva.txtAudio.setText("");
+        frmPreguntaAuditiva.txtImagen.setText("");
         frmPreguntaAuditiva.txtDescuido.setText("");
         frmPreguntaAuditiva.txtAdivinanza.setText("");
         frmPreguntaAuditiva.txtPrimeraAlternativa.setText("");
@@ -460,6 +540,7 @@ public class FrmPreguntaAuditivaController extends KeyAdapter implements IView,I
     public void valueChanged(ListSelectionEvent e) {
         if (!e.getValueIsAdjusting()){
             if (frmPreguntaAuditiva.table.getSelectedRow() != -1) {
+                frmPreguntaAuditiva.txtImagen.setText("");
                 row = frmPreguntaAuditiva.table.getSelectedRow();
                 frmPreguntaAuditiva.txtPeriodo.setSelectedItem(frmPreguntaAuditiva.table.getValueAt(row,6).toString());
                 frmPreguntaAuditiva.txtDescripcion.setText(frmPreguntaAuditiva.table.getValueAt(row,0).toString());
@@ -479,6 +560,11 @@ public class FrmPreguntaAuditivaController extends KeyAdapter implements IView,I
                         for (int j = 0; j < listaAudio.size() ; j++) {//path audio
                             if(listaPregunta.get(i).getIdPregunta() == listaAudio.get(j).getIdPregunta()){
                                 frmPreguntaAuditiva.txtAudio.setText(listaAudio.get(j).getAudio());
+                            }
+                        }
+                        for (int j = 0; j < listaImagen.size() ; j++) {//path imagen
+                            if(listaPregunta.get(i).getIdPregunta() == listaImagen.get(j).getIdPregunta()){
+                                frmPreguntaAuditiva.txtImagen.setText(listaImagen.get(j).getImagen());
                             }
                         }
                         aux =0;//reseteamos auxiliar
@@ -525,13 +611,23 @@ public class FrmPreguntaAuditivaController extends KeyAdapter implements IView,I
     }
     
     public void buscarAudio(){
-        fileChooser.setAcceptAllFileFilterUsed(false);
-        fileChooser.addChoosableFileFilter(filter);
-        fileChooser.showOpenDialog(null);
-        namepathNuevo = fileChooser.getSelectedFile();
-        if(namepathNuevo!=null){
-        frmPreguntaAuditiva.txtAudio.setText(namepathNuevo.getAbsolutePath());}
-        estadoChooser = true;
+        fileChooserAudio.setAcceptAllFileFilterUsed(false);
+        fileChooserAudio.addChoosableFileFilter(filterAudio);
+        fileChooserAudio.showOpenDialog(null);
+        namepathNuevoAudio = fileChooserAudio.getSelectedFile();
+        if(namepathNuevoAudio!=null){
+        frmPreguntaAuditiva.txtAudio.setText(namepathNuevoAudio.getAbsolutePath());}
+        estadoChooserAudio = true;
+    }
+    
+    public void buscarImagen(){
+        fileChooserImagen.setAcceptAllFileFilterUsed(false);
+        fileChooserImagen.addChoosableFileFilter(filterImagen);
+        fileChooserImagen.showOpenDialog(null);
+        namepathNuevoImagen = fileChooserImagen.getSelectedFile();
+        if(namepathNuevoImagen!=null){
+        frmPreguntaAuditiva.txtImagen.setText(namepathNuevoImagen.getAbsolutePath());}
+        estadoChooserImagen = true;
     }
     
     public void cargarPeriodos(){
@@ -588,6 +684,11 @@ public class FrmPreguntaAuditivaController extends KeyAdapter implements IView,I
     public void cargarAudios(){
         if(listaAudio!=null)listaAudio.clear(); 
         listaAudio = audioDao.Read();
+    }
+    
+    public void cargarImagenes(){
+        if(listaImagen!=null)listaImagen.clear(); 
+        listaImagen = imagenDao.Read();
     }
     
     public void cargarAlternativas(){
@@ -655,14 +756,36 @@ public class FrmPreguntaAuditivaController extends KeyAdapter implements IView,I
     
     public void guardarAudio(){
         try {
-            if(!(urlImagenDestino+nombreOGG).equals(namepathNuevo.getAbsolutePath())){
+            if(!(urlAudioDestino+nombreOGG).equals(namepathNuevoAudio.getAbsolutePath())){
                 InputStream inStream = null;
                 OutputStream outStream = null;
-                File afile = new File(namepathNuevo.getAbsolutePath());
-                File bfile = new File(urlImagenDestino+nombreOGG);
+                File afile = new File(namepathNuevoAudio.getAbsolutePath());
+                File bfile = new File(urlAudioDestino+nombreOGG);
                 inStream = new FileInputStream(afile);
                 outStream = new FileOutputStream(bfile);
                 bfile.delete();//eliminamos el audio que existe
+                byte[] buffer = new byte[1024];
+                int length;
+                //copy the file content in bytes 
+                while ((length = inStream.read(buffer)) > 0) {
+                    outStream.write(buffer, 0, length);
+                }
+                inStream.close();
+                outStream.close();
+            }
+        } catch(IOException e) {}
+    }
+    
+    public void guardarImagen(){
+        try {
+            if(!(urlImagenDestino+nombrePNG).equals(namepathNuevoImagen.getAbsolutePath())){
+                InputStream inStream = null;
+                OutputStream outStream = null;
+                File afile = new File(namepathNuevoImagen.getAbsolutePath());
+                File bfile = new File(urlImagenDestino+nombrePNG);
+                inStream = new FileInputStream(afile);
+                outStream = new FileOutputStream(bfile);
+                bfile.delete();//eliminamos la imagen que existe
                 byte[] buffer = new byte[1024];
                 int length;
                 //copy the file content in bytes 

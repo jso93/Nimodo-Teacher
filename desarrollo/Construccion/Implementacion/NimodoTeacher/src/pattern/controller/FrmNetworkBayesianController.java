@@ -6,6 +6,7 @@ import java.awt.Point;
 import java.awt.event.ItemEvent;
 import java.awt.event.ItemListener;
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.List;
 import pattern.dao.AlternativaDao;
 import pattern.dao.DocenteAulaDao;
@@ -62,6 +63,7 @@ public class FrmNetworkBayesianController implements IView,ItemListener{
     private final List<List<Object>> listaCapacidadCompetencia;
     private final List<List<Object>> listaDesempeñoCapacidad;
     private List<Pregunta> listaPregunta;
+    private List<List<Object>> listaPreguntaForCompetencia;
     private List<List<Object>> listaPreguntaDesempeño;
     private List<Object> preguntaDesempeño;
     private List<Alternativa> listaAlternativa;
@@ -102,11 +104,12 @@ public class FrmNetworkBayesianController implements IView,ItemListener{
     public void initController() {
         //events
         frmNetworkBayesian.btnConsultar.addActionListener(e -> NetworkBayesian());
+        //frmNetworkBayesian.btnPng.addActionListener(e -> createPng());
         frmNetworkBayesian.txtEstudiante.addItemListener(this);
         frmNetworkBayesian.txtArea.addItemListener(this);
         frmNetworkBayesian.txtPeriodo.addItemListener(this);
         //properties
-        panel.setPreferredSize(new Dimension(9000, 4096));
+        panel.setPreferredSize(new Dimension(3100, 700));
         frmNetworkBayesian.scroll.setViewportView(panel);
         frmNetworkBayesian.scroll.setPreferredSize(new Dimension(750, 500));
         frmNetworkBayesian.scroll.getViewport().setViewPosition(new Point(4100, 0));
@@ -122,6 +125,7 @@ public class FrmNetworkBayesianController implements IView,ItemListener{
         /*matriz*/
         getMatriz();
         getPregunta();
+        getPreguntaForCompetencia();
         getAlternativa();
         getNivel();
         getEstilo();        
@@ -141,6 +145,7 @@ public class FrmNetworkBayesianController implements IView,ItemListener{
                 System.out.println("NOMBRES:"+listaEstudianteMatriculado.get(i).get(1));
                 System.out.println("APELLIDOS:"+listaEstudianteMatriculado.get(i).get(2));
                 dniEstudiante = listaEstudianteMatriculado.get(i).get(0);
+                break;
             }
         }
         area = frmNetworkBayesian.txtArea.getSelectedItem().toString();
@@ -183,6 +188,7 @@ public class FrmNetworkBayesianController implements IView,ItemListener{
         getCompetencias(area);//consultamos competencias por area
         getEvaluacionAdaptativa();//consultamos evaluaciones adapttivs
         //PREGUNTAS POR DESEMPEÑO
+        System.out.println("CANTIDAD PREGUNTAS:"+listaPreguntaDesempeño.size());
         System.out.println("********************************");
         for (int i = 0; i < listaDesempeñoCapacidad.size(); i++) {
             for (int j = 0; j < listaMatriz.size(); j++) {
@@ -207,8 +213,12 @@ public class FrmNetworkBayesianController implements IView,ItemListener{
             }
         }
         /////DRAW NETWORK BAYESIAN
-        panel.drawNetworkBayesian(listaDesempeñoCapacidad,listaCapacidadCompetencia,listaCompetencias,area,periodo,dniEstudiante,idDocenteAula,dniDocente,listaPreguntaDesempeño,listaEvaluacionAdaptativa,grado,seccion,estudiante,listaImagen,listaAlternativa);
+        panel.drawNetworkBayesian(listaDesempeñoCapacidad,listaCapacidadCompetencia,listaCompetencias,area,periodo,dniEstudiante,idDocenteAula,dniDocente,listaPreguntaDesempeño,listaEvaluacionAdaptativa,grado,seccion,estudiante,listaImagen,listaAlternativa,listaPreguntaForCompetencia);
     }
+    
+    /*public void createPng(){
+        panel.saveImage();
+    }*/
     
     public void getConocimientoAPosterioriDesempeño(int indice,List<List<Object>> preguntaInicio,List<List<Object>> preguntaProceso,List<List<Object>> preguntaSatisfactorio){
         boolean estadoNivelInicio = false;
@@ -353,6 +363,8 @@ public class FrmNetworkBayesianController implements IView,ItemListener{
     
     public void getPregunta(){listaPregunta = preguntaDao.Read();}
     
+    public void getPreguntaForCompetencia(){listaPreguntaForCompetencia = preguntaDao.ReadForCompetencia();}
+    
     public void getAlternativa(){listaAlternativa = alternativaDao.Read();}
     
     public void getNivel(){listaNivel = nivelDao.Read();}
@@ -367,6 +379,8 @@ public class FrmNetworkBayesianController implements IView,ItemListener{
             if(idEstudianteMatricula == i){
                 idEstudianteMatricula=Integer.parseInt(listaEstudianteMatriculado.get(i).get(5));
                 estudiante = listaEstudianteMatriculado.get(i).get(1)+"  "+listaEstudianteMatriculado.get(i).get(2);
+                System.out.println("estudiante:"+estudiante);
+                break;
             }
         }
         if(listaEvaluacionAdaptativa!=null)listaEvaluacionAdaptativa.clear(); 

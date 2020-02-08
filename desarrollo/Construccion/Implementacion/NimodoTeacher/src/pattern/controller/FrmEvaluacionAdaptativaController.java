@@ -84,7 +84,7 @@ public class FrmEvaluacionAdaptativaController implements IView,ICrudView,ListSe
         model=new DefaultTableModel(){@Override public boolean isCellEditable(int row, int column) {return false;}};
         int idEstudianteMatricula = frmEvaluacionAdaptativa.txtEstudiante.getSelectedIndex();
         for(int i=0;i<listaEstudianteMatriculado.size();i++){
-            if(idEstudianteMatricula == i)idEstudianteMatricula=Integer.parseInt(listaEstudianteMatriculado.get(i).get(5));
+            if(idEstudianteMatricula == i){idEstudianteMatricula=Integer.parseInt(listaEstudianteMatriculado.get(i).get(5));break;}
         }
         area = frmEvaluacionAdaptativa.txtArea.getSelectedItem().toString();
         periodo = frmEvaluacionAdaptativa.txtPeriodo.getSelectedItem().toString();
@@ -104,6 +104,8 @@ public class FrmEvaluacionAdaptativaController implements IView,ICrudView,ListSe
                 rowTable[4] = ""+listaEvaluacionAdaptativa.get(i).get(4);
                 model.addRow(rowTable);
             }
+        }else{
+            System.out.println("no hay nada");
         }
         frmEvaluacionAdaptativa.table.setModel(model);//seteamos model
         if(frmEvaluacionAdaptativa.table.getColumnCount()!=0){
@@ -134,8 +136,9 @@ public class FrmEvaluacionAdaptativaController implements IView,ICrudView,ListSe
         listaEstudianteMatriculado = new ArrayList<>();
         for(int i=0;i<listaEstudiante.size();i++){
             if(grado.equals(listaEstudiante.get(i).get(3)) && seccion.equals(listaEstudiante.get(i).get(4))){
-                frmEvaluacionAdaptativa.txtEstudiante.addItem(listaEstudiante.get(i).get(1));//new Item(1, "Test")
+                frmEvaluacionAdaptativa.txtEstudiante.addItem(listaEstudiante.get(i).get(1));//new Item(1, "Test")                
                 listaEstudianteMatriculado.add(listaEstudiante.get(i));
+                //System.out.println(listaEstudianteMatriculado.get(i));
             }
         }
     }

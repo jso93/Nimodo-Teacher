@@ -68,7 +68,23 @@ public class AreaDao extends Conexion implements ICrudDao<Area>{
         }
         return estado;
     }
-
+    
+    public boolean UpdateTiempo(int id) {
+        try {
+            conectar();
+            myStmt = conexion.prepareCall("{call resultadoUpdate(?)}");
+            myStmt.setInt(1, id);
+            myStmt.executeUpdate();
+            estado=true;
+            cerrar();    
+        } catch (Exception e) {
+            System.out.println("--->"+e);
+            estado=false;
+            try {cerrar();} catch (Exception ex) { System.out.println(ex); }
+        }
+        return estado;
+    }
+    
     @Override
     public boolean Delete(Area area) {
         try {

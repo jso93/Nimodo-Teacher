@@ -8,25 +8,38 @@ import com.itextpdf.text.Element;
 import com.itextpdf.text.Font;
 import com.itextpdf.text.FontFactory;
 import com.itextpdf.text.Image;
+import com.itextpdf.text.PageSize;
 import com.itextpdf.text.Paragraph;
+import com.itextpdf.text.pdf.PdfPCell;
+import com.itextpdf.text.pdf.PdfPTable;
 import com.itextpdf.text.pdf.PdfWriter;
 import java.awt.BasicStroke;
+import java.awt.BorderLayout;
 import java.awt.Color;
 import java.awt.Graphics;
 import java.awt.Graphics2D;
 import java.awt.Point;
 import java.awt.RenderingHints;
+import java.awt.event.ActionEvent;
 import java.awt.event.MouseEvent;
 import java.awt.event.MouseListener;
 import java.awt.event.MouseMotionListener;
+import java.awt.image.BufferedImage;
 import java.io.File;
 import java.io.FileNotFoundException;
 import java.io.FileOutputStream;
 import java.io.IOException;
+import java.text.DateFormat;
+import java.text.ParseException;
+import java.text.SimpleDateFormat;
 import java.util.ArrayList;
+import java.util.Date;
 import java.util.List;
-import java.util.Random;
+import javax.imageio.ImageIO;
+import javax.swing.AbstractAction;
+import javax.swing.JButton;
 import javax.swing.JFileChooser;
+import javax.swing.JFrame;
 import javax.swing.JOptionPane;
 import javax.swing.JPanel;
 import javax.swing.filechooser.FileNameExtensionFilter;
@@ -59,6 +72,7 @@ public class NetworkBayesianController extends JPanel implements MouseListener, 
     private Point cursor;
     private Graphics2D graphics2d;
     private Node areaNode;
+    private List<List<Object>> listaPreguntaForCompetencia;
     private List<Competencia> listaCompetencias;
     private List<List<Object>> listaCapacidadCompetencia;
     private List<List<Object>> listaDesempeñoCapacidad;
@@ -73,6 +87,7 @@ public class NetworkBayesianController extends JPanel implements MouseListener, 
     int distanciaCapacidad = 200;
     int distanciaCompetencia = 800;
     int distanciaDesempeño = 75;
+    int tiempoEvaluacion = 0;
     
     public NetworkBayesianController(FrmPrincipalController frmPrincipalController){
         this.frmReporteNetworkBayesian = new FrmReporteNetworkBayesian(frmPrincipalController.frmPrincipal, true);
@@ -207,7 +222,7 @@ public class NetworkBayesianController extends JPanel implements MouseListener, 
          graph.clear(); 
          repaint();
     }
-    public void drawNetworkBayesian(List<List<Object>> _listaDesempeñoCapacidad,List<List<Object>> _listaCapacidadCompetencia,List<Competencia> _listaCompetencias,String _area,String _periodo,String _dniEstudiante,int _idDocenteAula,String _dniDocente,List<List<Object>> _listaPreguntaDesempeño,List<List<Object>> _listaEvaluacionAdaptativa,String _grado,String _seccion,String _estudiante,List<Imagen> _listaImagen,List<Alternativa> _listaAlternativa){
+    public void drawNetworkBayesian(List<List<Object>> _listaDesempeñoCapacidad,List<List<Object>> _listaCapacidadCompetencia,List<Competencia> _listaCompetencias,String _area,String _periodo,String _dniEstudiante,int _idDocenteAula,String _dniDocente,List<List<Object>> _listaPreguntaDesempeño,List<List<Object>> _listaEvaluacionAdaptativa,String _grado,String _seccion,String _estudiante,List<Imagen> _listaImagen,List<Alternativa> _listaAlternativa,List<List<Object>> _listaPreguntaForCompetencia){
         reset();
         //alternativa
         listaAlternativa = _listaAlternativa;
@@ -221,7 +236,7 @@ public class NetworkBayesianController extends JPanel implements MouseListener, 
         //list evaluacion adaptativa
         listaEvaluacionAdaptativa = _listaEvaluacionAdaptativa;
         //lista preguntas
-        listaPreguntaDesempeño = _listaPreguntaDesempeño;
+        listaPreguntaDesempeño = _listaPreguntaDesempeño; 
         //area periodo
         area = _area;
         periodo = _periodo;
@@ -237,6 +252,7 @@ public class NetworkBayesianController extends JPanel implements MouseListener, 
         areaNode = new Node(pointArea, 1,area,0.0,"Area");
         graph.addNode(areaNode);
         //RECIBIMOS DATOS
+        listaPreguntaForCompetencia = _listaPreguntaForCompetencia;
         listaCompetencias = _listaCompetencias;
         cantCompetencia = listaCompetencias.size();
         listaCapacidadCompetencia = _listaCapacidadCompetencia;
@@ -348,8 +364,10 @@ public class NetworkBayesianController extends JPanel implements MouseListener, 
     
     public void descargarPDF(Node node)throws FileNotFoundException, DocumentException{
         boolean estado = false;
+        String competencia;
         for (int i = 0; i < listaEvaluacionAdaptativa.size(); i++) {
             if(node.getName().equals(listaEvaluacionAdaptativa.get(i).get(2))){
+                competencia = listaEvaluacionAdaptativa.get(i).get(2).toString();//competencia seleccionada
                 estado = true;
                 JFileChooser fileChooser = new JFileChooser();
                 fileChooser.setDialogTitle("Donde desea guardar");   
@@ -393,6 +411,8 @@ public class NetworkBayesianController extends JPanel implements MouseListener, 
                     estudiantetNameText.setAlignment(Element.ALIGN_CENTER);
                     Paragraph estudiantetTitleNota = new Paragraph("NIVEL DE CONOCIMIENTO",estudiantetTitleFont);
                     estudiantetTitleNota.setAlignment(Element.ALIGN_CENTER);
+                    Paragraph tiempoTitleEvaluacion = new Paragraph("TIEMPO",estudiantetTitleFont);
+                    tiempoTitleEvaluacion.setAlignment(Element.ALIGN_CENTER);
                     //nota vigesimal
                     double calificacion = 0.0;
                     double porcentaje = 0.0;
@@ -403,13 +423,27 @@ public class NetworkBayesianController extends JPanel implements MouseListener, 
                     calificacion = (double)(node.getConocimientoAPosteriori()*20)/calificacion;
                     calificacion = (double)Math.round(calificacion * 10000d) / 10000d;                    
                     Paragraph estudiantetNotaText = new Paragraph(""+calificacion+" ( "+porcentaje+"% ) ",estudianteNameFont);
-                    estudiantetNotaText.setAlignment(Element.ALIGN_CENTER);                    
+                    estudiantetNotaText.setAlignment(Element.ALIGN_CENTER);   
+                    //tiempoEvaluacion
+                    tiempoEvaluacion = 0;
+                    for (int j = 0; j < listaPreguntaDesempeño.size(); j++) {
+                        System.out.println(listaEvaluacionAdaptativa.get(i).get(0)+"   "+listaPreguntaDesempeño.get(j).get(8));
+                        int var1,var2;
+                        var1 = Integer.parseInt(listaEvaluacionAdaptativa.get(i).get(0).toString());
+                        var2 = Integer.parseInt(listaPreguntaDesempeño.get(j).get(8).toString());
+                        if (var1 ==var2) {
+                            tiempoEvaluacion+=Integer.parseInt(listaPreguntaDesempeño.get(i).get(6).toString());
+                        }
+                    }
+                    Paragraph tiempoEvaluacionText = new Paragraph(getTiempo(tiempoEvaluacion),estudianteNameFont);
+                    tiempoEvaluacionText.setAlignment(Element.ALIGN_CENTER); 
                     String a="a.";
                     String b="b.";
                     String c="c.";
                     String alter ="";
                     int contAlternativa = 0;
                     int contPregunta = 0;
+                    //int tiempoEvaluacion = 0;
                     // Se abre el documento.
                     documento.open();
                     //cabecera
@@ -442,18 +476,20 @@ public class NetworkBayesianController extends JPanel implements MouseListener, 
                     documento.add(estudiantetNotaText);
                     documento.add(new Paragraph("\n"));
                     documento.add(new Paragraph("\n"));
-                    documento.add(new Paragraph("\n"));
-                    documento.add(new Paragraph("\n"));
-                    documento.add(new Paragraph("\n"));
-                    documento.add(new Paragraph("\n"));
-                    documento.add(new Paragraph("\n"));
-                    documento.add(new Paragraph("\n"));                    
+                    documento.add(tiempoTitleEvaluacion);
+                    documento.add(tiempoEvaluacionText);
+                    documento.newPage();
                     System.out.println("id:"+listaEvaluacionAdaptativa.get(i).get(0)+"area:"+listaEvaluacionAdaptativa.get(i).get(1)+" competencia:"+listaEvaluacionAdaptativa.get(i).get(2)+" periodo:"+listaEvaluacionAdaptativa.get(i).get(3)+" fecha:"+listaEvaluacionAdaptativa.get(i).get(4));
+                    System.out.println("--:"+listaPreguntaDesempeño.size()); 
                     for (int j = 0; j < listaPreguntaDesempeño.size(); j++) {
-                        if (listaEvaluacionAdaptativa.get(i).get(0) == listaPreguntaDesempeño.get(j).get(8)) {
-                            System.out.println("\tpregunta:"+listaPreguntaDesempeño.get(j).get(1)+" idevalucion:"+listaPreguntaDesempeño.get(j).get(8));
+                        System.out.println(listaEvaluacionAdaptativa.get(i).get(0)+"   "+listaPreguntaDesempeño.get(j).get(8));
+                        int var1,var2;
+                        var1 = Integer.parseInt(listaEvaluacionAdaptativa.get(i).get(0).toString());
+                        var2 = Integer.parseInt(listaPreguntaDesempeño.get(j).get(8).toString());
+                        if (var1 ==var2) {
+                            System.out.println("IDPREGUNTA:"+listaPreguntaDesempeño.get(j).get(0)+"\tpregunta:"+listaPreguntaDesempeño.get(j).get(1)+"\tNIVEL:"+listaPreguntaDesempeño.get(j).get(2)+"\tESTILO:"+listaPreguntaDesempeño.get(j).get(3)+" idevalucion:"+listaPreguntaDesempeño.get(j).get(8)+" tiempo: "+listaPreguntaDesempeño.get(j).get(6));
                             contPregunta+=1;
-                            documento.add(new Paragraph(""+contPregunta+". "+listaPreguntaDesempeño.get(j).get(1),FontFactory.getFont("arial",16,Font.BOLD,BaseColor.BLACK)));//PREGUNTA
+                            documento.add(new Paragraph(""+contPregunta+". "+listaPreguntaDesempeño.get(j).get(1)+" ("+listaPreguntaDesempeño.get(j).get(3).toString().toUpperCase()+")",FontFactory.getFont("arial",12,Font.BOLD,BaseColor.BLACK)));//PREGUNTA
                             contAlternativa = 0;//restablecer contador
                             for (int k = 0; k < listaImagen.size(); k++) {
                                 if(listaImagen.get(k).getIdPregunta() == Integer.parseInt(listaPreguntaDesempeño.get(j).get(0).toString()) ){
@@ -477,22 +513,22 @@ public class NetworkBayesianController extends JPanel implements MouseListener, 
                                     if(alternativa.getIdAlternativa() == listaAlternativa.get(k).getIdAlternativa()){
                                         System.out.println("\tidalternativa: "+listaAlternativa.get(k).getIdAlternativa()+" descripcion:"+listaAlternativa.get(k).getDescripcion()+" estado: "+listaAlternativa.get(k).isSuccess()+" idpregunta:"+listaAlternativa.get(k).getIdPregunta()+" ----eligio este xd");
                                         if(listaAlternativa.get(k).isSuccess()){
-                                            alterFont = FontFactory.getFont("arial",16,Font.NORMAL,BaseColor.GREEN);    
+                                            alterFont = FontFactory.getFont("arial",12,Font.NORMAL,BaseColor.GREEN);    
                                         }else{
-                                            alterFont = FontFactory.getFont("arial",16,Font.NORMAL,BaseColor.RED);  
+                                            alterFont = FontFactory.getFont("arial",12,Font.NORMAL,BaseColor.RED);  
                                         }
                                     }else{
                                         if(listaAlternativa.get(k).isSuccess()){
-                                            alterFont = FontFactory.getFont("arial",16,Font.BOLD,BaseColor.GREEN);    
+                                            alterFont = FontFactory.getFont("arial",12,Font.BOLD,BaseColor.GREEN);    
                                         }else{
-                                            alterFont = FontFactory.getFont("arial",16,Font.NORMAL,BaseColor.BLACK);
+                                            alterFont = FontFactory.getFont("arial",12,Font.NORMAL,BaseColor.BLACK);
                                         }
                                     }
                                     contAlternativa+=1;
                                     if(contAlternativa==1){alter =a;}
                                     if(contAlternativa==2){alter =b;}
                                     if(contAlternativa==3){alter =c;}
-                                    Font itemFont = FontFactory.getFont("arial",16,Font.BOLD,BaseColor.BLACK);
+                                    Font itemFont = FontFactory.getFont("arial",12,Font.BOLD,BaseColor.BLACK);
                                     Paragraph comb=new Paragraph(); 
                                     comb.add(new Chunk(alter,itemFont)); 
                                     comb.add(new Chunk("  "+listaAlternativa.get(k).getDescripcion(),alterFont)); 
@@ -504,6 +540,77 @@ public class NetworkBayesianController extends JPanel implements MouseListener, 
                             }
                         }
                     }
+                    //REPORTES PREGUNTAS
+                    documento.setPageSize(PageSize.LETTER.rotate());
+                    documento.newPage();
+                    Paragraph competenciaText1 = new Paragraph(node.getName().toUpperCase(),FontFactory.getFont("arial",7,Font.BOLD,BaseColor.BLACK));
+                    competenciaText1.setAlignment(Element.ALIGN_CENTER);
+                    documento.add(competenciaText1);
+                    documento.add(new Paragraph("\n"));
+                    PdfPTable table = new PdfPTable(8); // 3 columns.
+                    table.setWidthPercentage(100);
+                    table.setWidths(new float[] { 0.4f, 0.4f, 1.1f,0.2f,0.2f,0.2f,0.2f,0.7f });
+                    PdfPCell cell1 = new PdfPCell(new Paragraph("CAPACIDAD",FontFactory.getFont("arial",6,Font.BOLD,BaseColor.BLACK)));
+                    PdfPCell cell2 = new PdfPCell(new Paragraph("DESEMPEÑO",FontFactory.getFont("arial",6,Font.BOLD,BaseColor.BLACK)));
+                    PdfPCell cell3 = new PdfPCell(new Paragraph("PREGUNTA",FontFactory.getFont("arial",6,Font.BOLD,BaseColor.BLACK)));
+                    PdfPCell cell4 = new PdfPCell(new Paragraph("ESTILO",FontFactory.getFont("arial",6,Font.BOLD,BaseColor.BLACK)));
+                    PdfPCell cell5 = new PdfPCell(new Paragraph("NIVEL",FontFactory.getFont("arial",6,Font.BOLD,BaseColor.BLACK)));
+                    PdfPCell cell6 = new PdfPCell(new Paragraph("ACERTADOS",FontFactory.getFont("arial",6,Font.BOLD,BaseColor.BLACK)));
+                    PdfPCell cell7 = new PdfPCell(new Paragraph("FALLADOS",FontFactory.getFont("arial",6,Font.BOLD,BaseColor.BLACK)));
+                    PdfPCell cell8 = new PdfPCell(new Paragraph("RESULTADO",FontFactory.getFont("arial",6,Font.BOLD,BaseColor.BLACK)));
+                    
+                    table.addCell(cell1);
+                    table.addCell(cell2);
+                    table.addCell(cell3);
+                    table.addCell(cell4);
+                    table.addCell(cell5);
+                    table.addCell(cell6);
+                    table.addCell(cell7);
+                    table.addCell(cell8);
+                    
+                    for (int j = 0; j < listaPreguntaForCompetencia.size(); j++) {
+                        if(listaPreguntaForCompetencia.get(j).get(4).equals(competencia)){
+                            //documento.add(new Paragraph("ID PREGUNTA: "+listaPreguntaForCompetencia.get(j).get(0)+" DESCRIPCION:"+listaPreguntaForCompetencia.get(j).get(1)+" COMPETENCIA:"+listaPreguntaForCompetencia.get(j).get(2)+" CAPACIDAD: "+listaPreguntaForCompetencia.get(j).get(3)+" DESEMPEÑO: "+listaPreguntaForCompetencia.get(j).get(4),FontFactory.getFont("arial",12,Font.BOLD,BaseColor.BLACK)));//PREGUNTA
+                            //PdfPCell cellcompetencia = new PdfPCell(new Paragraph(listaPreguntaForCompetencia.get(j).get(2).toString(),FontFactory.getFont("arial",8,Font.NORMAL,BaseColor.BLACK)));
+                            PdfPCell cellcapacidad = new PdfPCell(new Paragraph(listaPreguntaForCompetencia.get(j).get(5).toString(),FontFactory.getFont("arial",6,Font.NORMAL,BaseColor.BLACK)));
+                            PdfPCell celldesempenio = new PdfPCell(new Paragraph(listaPreguntaForCompetencia.get(j).get(6).toString(),FontFactory.getFont("arial",6,Font.NORMAL,BaseColor.BLACK)));
+                            PdfPCell cellpregunta = new PdfPCell(new Paragraph(listaPreguntaForCompetencia.get(j).get(1).toString(),FontFactory.getFont("arial",6,Font.NORMAL,BaseColor.BLACK)));
+                            PdfPCell cellEstilo = new PdfPCell(new Paragraph(listaPreguntaForCompetencia.get(j).get(2).toString(),FontFactory.getFont("arial",6,Font.NORMAL,BaseColor.BLACK)));
+                            PdfPCell cellNivel = new PdfPCell(new Paragraph(listaPreguntaForCompetencia.get(j).get(3).toString(),FontFactory.getFont("arial",6,Font.NORMAL,BaseColor.BLACK)));
+                            PdfPCell cellAcertados = new PdfPCell(new Paragraph("No evaluado",FontFactory.getFont("arial",6,Font.NORMAL,BaseColor.BLACK)));
+                            PdfPCell cellFallados = new PdfPCell(new Paragraph("No evaluado",FontFactory.getFont("arial",6,Font.NORMAL,BaseColor.BLACK)));
+                            PdfPCell cellResultado = new PdfPCell(new Paragraph("Sin resultados",FontFactory.getFont("arial",6,Font.NORMAL,BaseColor.BLACK)));
+
+                            for (int k = 0; k < listaPreguntaDesempeño.size(); k++) {
+                                if(listaPreguntaDesempeño.get(k).get(0).equals(listaPreguntaForCompetencia.get(j).get(0))){
+                                    Alternativa alternativa = (Alternativa)listaPreguntaDesempeño.get(k).get(4);
+                                    for (int l = 0; l < listaAlternativa.size(); l++) {
+                                        if(alternativa.getIdAlternativa() == listaAlternativa.get(l).getIdAlternativa()){
+                                            if(listaAlternativa.get(l).isSuccess()){
+                                                cellAcertados = new PdfPCell(new Paragraph("Acertó",FontFactory.getFont("arial",6,Font.NORMAL,BaseColor.BLACK)));
+                                                cellAcertados.setBackgroundColor(new BaseColor(0, 255, 0));
+                                                cellResultado = new PdfPCell(new Paragraph("El estudiante acertó la pregunta "+listaPreguntaForCompetencia.get(j).get(2).toString()+" en el nivel "+listaPreguntaForCompetencia.get(j).get(3).toString(),FontFactory.getFont("arial",6,Font.NORMAL,BaseColor.BLACK)));
+                                            }else{
+                                                cellFallados = new PdfPCell(new Paragraph("Falló",FontFactory.getFont("arial",6,Font.NORMAL,BaseColor.BLACK)));
+                                                cellFallados.setBackgroundColor(new BaseColor(255, 0, 0));
+                                                cellResultado = new PdfPCell(new Paragraph("El estudiante aún tiene dificultades en el desempeño: "+listaPreguntaForCompetencia.get(j).get(6).toString(),FontFactory.getFont("arial",6,Font.NORMAL,BaseColor.BLACK)));
+                                            }
+                                        }
+                                    }
+                                }
+                                
+                            }
+                            table.addCell(cellcapacidad);
+                            table.addCell(celldesempenio);
+                            table.addCell(cellpregunta);
+                            table.addCell(cellEstilo);
+                            table.addCell(cellNivel);
+                            table.addCell(cellAcertados);
+                            table.addCell(cellFallados);
+                            table.addCell(cellResultado);
+                        }
+                    }
+                    documento.add(table);
                     documento.close();  
                     if(!documento.isOpen()){
                         JOptionPane.showMessageDialog(null,"PDF generado con exito!");
@@ -516,8 +623,33 @@ public class NetworkBayesianController extends JPanel implements MouseListener, 
         }
     }
     
-    public static double getRandom(Double valorMinimo, Double valorMaximo) {
-        Random rand = new Random();
-        return  valorMinimo + ( valorMaximo - valorMinimo ) * rand.nextDouble();
+    public String  getTiempo(int tiempo){
+        int horas,minutos,segundos;
+        horas = (int)tiempo/3600;
+        minutos = (int)(tiempo%3600)/60;
+        segundos =(int)(tiempo%3600)%60;
+        String time = "00:00:00";
+        try {
+            String myDateString = horas+":"+minutos+":"+segundos;
+            DateFormat sdf = new SimpleDateFormat("HH:mm:ss");
+            Date date = sdf.parse(myDateString);            
+            SimpleDateFormat localDateFormat = new SimpleDateFormat("HH:mm:ss");
+            time = localDateFormat.format(date);
+            System.out.println(time);    
+        } catch (ParseException e) {}
+        return time;
     }
+    
+    /*public void saveImage(){
+        BufferedImage bi = new BufferedImage(this.getSize().width, this.getSize().height, BufferedImage.TYPE_INT_ARGB);
+        Graphics g = bi.createGraphics();
+        this.paint(g);
+        g.dispose();
+        try{
+            ImageIO.write(bi,"png",new File("graph.png"));
+        }catch (Exception e) {
+            e.printStackTrace();
+        }
+    }*/
+    
 }

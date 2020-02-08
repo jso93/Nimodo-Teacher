@@ -147,7 +147,7 @@ public class FrmPreguntaVisualController extends KeyAdapter implements IView,ICr
         if(frmPreguntaVisual.txtPeriodo.getItemCount() > 0 && !frmPreguntaVisual.txtDescripcion.getText().isEmpty() &&
            !frmPreguntaVisual.txtDescuido.getText().isEmpty() && !frmPreguntaVisual.txtAdivinanza.getText().isEmpty() &&
             frmPreguntaVisual.txtNivel.getItemCount() > 0 && !frmPreguntaVisual.txtEstilo.getText().isEmpty() &&
-           !frmPreguntaVisual.txtDesempenio.getText().isEmpty() && !frmPreguntaVisual.txtAudio.getText().isEmpty() && !frmPreguntaVisual.txtPrimeraAlternativa.getText().isEmpty() &&
+           !frmPreguntaVisual.txtDesempenio.getText().isEmpty() /*&& !frmPreguntaVisual.txtImagen.getText().isEmpty()*/ && !frmPreguntaVisual.txtPrimeraAlternativa.getText().isEmpty() &&
            !frmPreguntaVisual.txtSegundaAlternativa.getText().isEmpty() && !frmPreguntaVisual.txtTerceraAlternativa.getText().isEmpty()){
             //recuperamos datos
             txtDescripcion = frmPreguntaVisual.txtDescripcion.getText();
@@ -194,12 +194,23 @@ public class FrmPreguntaVisualController extends KeyAdapter implements IView,ICr
                     for (int i = 0; i < listaAlternativaNuevo.size(); i++) {
                         alternativaDao.Create(listaAlternativaNuevo.get(i));//registramos alternativas
                     }
-                    //nombre del png
+                    //imagen
+                    if(!frmPreguntaVisual.txtImagen.getText().isEmpty()){
+                        //nombre del png
+                        nombrePNG = preguntaDao.getIdPregunta()+".png";
+                        //creamos imagen
+                        imagenNuevo = new Imagen(0,urlImagenDestino+nombrePNG, preguntaDao.getIdPregunta());
+                        guardarImagen();//guardamos png en el directorio
+                        if(imagenDao.Create(imagenNuevo)){JOptionPane.showMessageDialog(null,"Registro exitoso!"); refreshView();}
+                    }else{
+                        JOptionPane.showMessageDialog(null,"Registro exitoso!"); refreshView();
+                    }
+                    /*//nombre del png
                     nombrePNG = preguntaDao.getIdPregunta()+".png";
                     //creamos imagen
                     imagenNuevo = new Imagen(0,urlImagenDestino+nombrePNG, preguntaDao.getIdPregunta());
                     guardarImagen();//guardamos png en el directorio
-                    if(imagenDao.Create(imagenNuevo)){JOptionPane.showMessageDialog(null,"Registro exitoso!"); refreshView();}
+                    if(imagenDao.Create(imagenNuevo)){JOptionPane.showMessageDialog(null,"Registro exitoso!"); refreshView();}*/
                     ////reseteamos valores
                     successA = false;
                     successB = false;
@@ -234,7 +245,7 @@ public class FrmPreguntaVisualController extends KeyAdapter implements IView,ICr
             if(frmPreguntaVisual.txtPeriodo.getItemCount() > 0 && !frmPreguntaVisual.txtDescripcion.getText().isEmpty() && /*!frmPreguntaVisual.txtApriori.getText().isEmpty() && */
                !frmPreguntaVisual.txtDescuido.getText().isEmpty() && !frmPreguntaVisual.txtAdivinanza.getText().isEmpty() &&
                 frmPreguntaVisual.txtNivel.getItemCount() > 0 && !frmPreguntaVisual.txtEstilo.getText().isEmpty() &&
-               !frmPreguntaVisual.txtDesempenio.getText().isEmpty() && !frmPreguntaVisual.txtAudio.getText().isEmpty() && !frmPreguntaVisual.txtPrimeraAlternativa.getText().isEmpty() &&
+               !frmPreguntaVisual.txtDesempenio.getText().isEmpty() /*&& !frmPreguntaVisual.txtImagen.getText().isEmpty()*/ && !frmPreguntaVisual.txtPrimeraAlternativa.getText().isEmpty() &&
                !frmPreguntaVisual.txtSegundaAlternativa.getText().isEmpty() && !frmPreguntaVisual.txtTerceraAlternativa.getText().isEmpty()){
                 //PREGUNTA ACTUAL
                 preguntaActual = new Pregunta();
@@ -314,21 +325,38 @@ public class FrmPreguntaVisualController extends KeyAdapter implements IView,ICr
                                 imagenActual.setImagen(listaImagen.get(i).getImagen());
                             }
                         }
-                        //nombre del png
-                        nombrePNG = preguntaActual.getIdPregunta()+".png";
-                        namepathActual = new File(imagenActual.getImagen());
-                        //IMAGEN NUEVO
-                        namepathNuevo = fileChooser.getSelectedFile();
-                        if(estadoChooser){
-                        namepathNuevo = fileChooser.getSelectedFile();//si selecciona el chooser 
+                        //imagen
+                        if(imagenActual.getImagen()!=null){
+                            //nombre del png
+                            nombrePNG = preguntaActual.getIdPregunta()+".png";
+                            namepathActual = new File(imagenActual.getImagen());
+                            //IMAGEN NUEVO
+                            namepathNuevo = fileChooser.getSelectedFile();
+                            if(estadoChooser){
+                            namepathNuevo = fileChooser.getSelectedFile();//si selecciona el chooser 
+                            }else{
+                            namepathNuevo = namepathActual; // si no selecciona el chooser   
+                            }
+                            estadoChooser = false;
+                            guardarImagen();
+                            ////reseteamos valores
+                            JOptionPane.showMessageDialog(null,"Actualización exitosa!");
+                            refreshView();    
                         }else{
-                        namepathNuevo = namepathActual; // si no selecciona el chooser   
+                            if(!frmPreguntaVisual.txtImagen.getText().isEmpty()){
+                                //nombre del png
+                                nombrePNG = preguntaActual.getIdPregunta()+".png";
+                                //creamos imagen
+                                imagenNuevo = new Imagen(0,urlImagenDestino+nombrePNG, preguntaActual.getIdPregunta());
+                                guardarImagen();//guardamos png en el directorio
+                                if(imagenDao.Create(imagenNuevo)){JOptionPane.showMessageDialog(null,"Actualización exitosa!"); refreshView();}    
+                            }else{
+                                estadoChooser = false;
+                                System.out.println("la pregunta sigue sin tener imagen");
+                                JOptionPane.showMessageDialog(null,"Actualización exitosa!");
+                                refreshView();
+                            }
                         }
-                        estadoChooser = false;
-                        guardarImagen();
-                        ////reseteamos valores
-                        JOptionPane.showMessageDialog(null,"Actualización exitosa!");
-                        refreshView();
                         successA = false;
                         successB = false;
                         successC = false;
@@ -366,9 +394,11 @@ public class FrmPreguntaVisualController extends KeyAdapter implements IView,ICr
                             imagenActual.setImagen(listaImagen.get(i).getImagen());
                         }
                     }
-                    namepathActual = new File(imagenActual.getImagen());
-                    namepathActual.delete();//eliminamos la imagen que existe
-                    JOptionPane.showMessageDialog(null,"Pregunta eliminada!");  
+                    if(imagenActual.getImagen()!=null){
+                        namepathActual = new File(imagenActual.getImagen());
+                        namepathActual.delete();
+                    }
+                    JOptionPane.showMessageDialog(null,"Pregunta eliminada!");
                 }else{
                     JOptionPane.showMessageDialog(null,"Error al eliminar!","Mensaje",JOptionPane.ERROR_MESSAGE);
                 }
@@ -385,7 +415,7 @@ public class FrmPreguntaVisualController extends KeyAdapter implements IView,ICr
         frmPreguntaVisual.txtEstilo.setText("");
         frmPreguntaVisual.txtDesempenio.setText("");
         frmPreguntaVisual.txtDesempeñoDescripcion.setText("");
-        frmPreguntaVisual.txtAudio.setText("");
+        frmPreguntaVisual.txtImagen.setText("");
         frmPreguntaVisual.txtDescuido.setText("");
         frmPreguntaVisual.txtAdivinanza.setText("");
         frmPreguntaVisual.txtPrimeraAlternativa.setText("");
@@ -460,6 +490,7 @@ public class FrmPreguntaVisualController extends KeyAdapter implements IView,ICr
     public void valueChanged(ListSelectionEvent e) {
         if (!e.getValueIsAdjusting()){
             if (frmPreguntaVisual.table.getSelectedRow() != -1) {
+                frmPreguntaVisual.txtImagen.setText("");
                 row = frmPreguntaVisual.table.getSelectedRow();
                 frmPreguntaVisual.txtPeriodo.setSelectedItem(frmPreguntaVisual.table.getValueAt(row,6).toString());
                 frmPreguntaVisual.txtDescripcion.setText(frmPreguntaVisual.table.getValueAt(row,0).toString());
@@ -478,7 +509,7 @@ public class FrmPreguntaVisualController extends KeyAdapter implements IView,ICr
                     if(frmPreguntaVisual.txtDescripcion.getText().equals(listaPregunta.get(i).getDescripcion())){
                         for (int j = 0; j < listaImagen.size() ; j++) {//path audio
                             if(listaPregunta.get(i).getIdPregunta() == listaImagen.get(j).getIdPregunta()){
-                                frmPreguntaVisual.txtAudio.setText(listaImagen.get(j).getImagen());
+                                frmPreguntaVisual.txtImagen.setText(listaImagen.get(j).getImagen());
                             }
                         }
                         aux =0;//reseteamos auxiliar
@@ -530,7 +561,7 @@ public class FrmPreguntaVisualController extends KeyAdapter implements IView,ICr
         fileChooser.showOpenDialog(null);
         namepathNuevo = fileChooser.getSelectedFile();
         if(namepathNuevo!=null){
-        frmPreguntaVisual.txtAudio.setText(namepathNuevo.getAbsolutePath());}
+        frmPreguntaVisual.txtImagen.setText(namepathNuevo.getAbsolutePath());}
         estadoChooser = true;
     }
     

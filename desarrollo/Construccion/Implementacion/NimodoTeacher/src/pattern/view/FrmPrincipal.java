@@ -354,8 +354,7 @@ Windows Classic*/
             String estudiante;
             while (true) {
               // Construimos el DatagramPacket para recibir peticiones
-              DatagramPacket packet =
-                new DatagramPacket(bufer, bufer.length);
+              DatagramPacket packet = new DatagramPacket(bufer, bufer.length);
               // Leemos una petición del DatagramSocket
               socketUDP.receive(packet);
               estudiante = new String(packet.getData(), 0, packet.getLength());

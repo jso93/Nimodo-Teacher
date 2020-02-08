@@ -42,6 +42,7 @@ public class FrmAreaController extends KeyAdapter implements IView,ICrudView,Lis
         frmArea.btnNew.addActionListener(e -> Clear());
         frmArea.table.getSelectionModel().addListSelectionListener(this);
         frmArea.txtBuscar.addKeyListener(this);
+        //frmArea.btnUpdateTiempo.addActionListener(e -> updateTiempo());
     }
 
     @Override
@@ -109,6 +110,16 @@ public class FrmAreaController extends KeyAdapter implements IView,ICrudView,Lis
         }
     }
 
+    /*public void updateTiempo() {
+        for (int i = 1; i <= 1743; i++) {
+            if(areaDao.UpdateTiempo(i)){
+                System.out.println(i+" -- OK!!");
+            }else{
+                System.out.println(i+" -- FALLO!!");
+            }
+        }
+    }*/
+    
     @Override
     public void Delete() {
         if(!frmArea.table.getSelectionModel().isSelectionEmpty()){

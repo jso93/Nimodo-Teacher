@@ -315,7 +315,7 @@ public class FrmEvaluacionTradicionalController extends KeyAdapter implements IV
         for (int i = 0; i < listaFecha.size(); i++) {
             frmEvaluacionTradicional.txtFechaCET.addItem(listaFecha.get(i));
         }
-        getEvaluacionesTradicionales();
+        getEvaluacionesTradicionales();    
     }
     
     public void getEvaluacionesTradicionales(){

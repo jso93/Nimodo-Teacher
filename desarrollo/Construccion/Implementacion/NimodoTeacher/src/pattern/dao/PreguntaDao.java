@@ -64,6 +64,33 @@ public class PreguntaDao extends Conexion implements ICrudDao<Pregunta>{
         }
         return listaPregunta;
     }
+    
+    public List<List<Object>> ReadForCompetencia() {
+        List<List<Object>> listaPregunta = null;
+        List<Object> pregunta = null;
+        try {
+            conectar();
+            listaPregunta=new ArrayList<>();
+            myStmt = conexion.prepareCall("{call preguntaReadForCompetencia()}");
+            rs=myStmt.executeQuery();
+            while (rs.next()) {
+                pregunta = new ArrayList<>();
+                pregunta.add(rs.getInt(1));
+                pregunta.add(rs.getString(2));
+                pregunta.add(rs.getString(3));
+                pregunta.add(rs.getString(4));
+                pregunta.add(rs.getString(5));
+                pregunta.add(rs.getString(6));
+                pregunta.add(rs.getString(7));
+                listaPregunta.add(pregunta);
+            }
+            cerrar();
+        } catch (Exception e) {
+            System.out.println("--->"+e);
+            try {cerrar();} catch (Exception ex) { System.out.println(ex); }
+        }
+        return listaPregunta;
+    }
 
     @Override
     public boolean Update(Pregunta pregunta_actual, Pregunta pregunta_nuevo) {
