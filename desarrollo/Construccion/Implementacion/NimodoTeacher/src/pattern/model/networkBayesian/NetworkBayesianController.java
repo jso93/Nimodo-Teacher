@@ -413,6 +413,13 @@ public class NetworkBayesianController extends JPanel implements MouseListener, 
                     estudiantetTitleNota.setAlignment(Element.ALIGN_CENTER);
                     Paragraph tiempoTitleEvaluacion = new Paragraph("TIEMPO",estudiantetTitleFont);
                     tiempoTitleEvaluacion.setAlignment(Element.ALIGN_CENTER);
+                    Paragraph fechaTitleEvaluacion = new Paragraph("FECHA",estudiantetTitleFont);
+                    fechaTitleEvaluacion.setAlignment(Element.ALIGN_CENTER);
+                    Paragraph fechaTextEvaluacion = new Paragraph(""+listaEvaluacionAdaptativa.get(i).get(4),estudianteNameFont);
+                    fechaTextEvaluacion.setAlignment(Element.ALIGN_CENTER);
+                    Paragraph lugarTitleEvaluacion = new Paragraph("CHINCHEROS - APURÍMAC",estudiantetTitleFont);
+                    lugarTitleEvaluacion.setAlignment(Element.ALIGN_CENTER);
+                    //listaEvaluacionAdaptativa.get(i).get(4)
                     //nota vigesimal
                     double calificacion = 0.0;
                     double porcentaje = 0.0;
@@ -432,7 +439,9 @@ public class NetworkBayesianController extends JPanel implements MouseListener, 
                         var1 = Integer.parseInt(listaEvaluacionAdaptativa.get(i).get(0).toString());
                         var2 = Integer.parseInt(listaPreguntaDesempeño.get(j).get(8).toString());
                         if (var1 ==var2) {
-                            tiempoEvaluacion+=Integer.parseInt(listaPreguntaDesempeño.get(i).get(6).toString());
+                            System.out.println("tiempo pregunta:"+listaPreguntaDesempeño.get(j).get(6).toString());
+                            tiempoEvaluacion+=Integer.parseInt(listaPreguntaDesempeño.get(j).get(6).toString());
+                            System.out.println("tiempo acumulado:"+tiempoEvaluacion);
                         }
                     }
                     Paragraph tiempoEvaluacionText = new Paragraph(getTiempo(tiempoEvaluacion),estudianteNameFont);
@@ -447,17 +456,13 @@ public class NetworkBayesianController extends JPanel implements MouseListener, 
                     // Se abre el documento.
                     documento.open();
                     //cabecera
-                    documento.add(new Paragraph("\n"));
-                    documento.add(new Paragraph("\n"));
-                    documento.add(new Paragraph("\n"));
-                    documento.add(new Paragraph("\n"));
-                    documento.add(new Paragraph("\n"));
-                    documento.add(new Paragraph("\n"));
-                    documento.add(new Paragraph("\n"));
-                    documento.add(new Paragraph("\n"));
-                    documento.add(new Paragraph("\n"));
-                    documento.add(new Paragraph("\n"));
-                    documento.add(new Paragraph("\n"));
+                    try {//logo
+                        Image foto = Image.getInstance(NetworkBayesianController.class.getResource("/images/logo.png"));
+                        foto.scaleAbsolute(150, 150);
+                        foto.setAlignment(Chunk.ALIGN_MIDDLE);
+                        documento.add(foto);      
+                    } catch (DocumentException | IOException e) {
+                    }
                     documento.add(evaluacionAdaptativaText);
                     documento.add(new Paragraph("\n"));
                     documento.add(areaText);
@@ -471,13 +476,17 @@ public class NetworkBayesianController extends JPanel implements MouseListener, 
                     documento.add(estudiantetTitleText);
                     documento.add(estudiantetNameText);
                     documento.add(new Paragraph("\n"));
-                    documento.add(new Paragraph("\n"));
                     documento.add(estudiantetTitleNota);
                     documento.add(estudiantetNotaText);
                     documento.add(new Paragraph("\n"));
-                    documento.add(new Paragraph("\n"));
                     documento.add(tiempoTitleEvaluacion);
                     documento.add(tiempoEvaluacionText);
+                    documento.add(new Paragraph("\n"));
+                    documento.add(fechaTitleEvaluacion);
+                    documento.add(fechaTextEvaluacion);
+                    documento.add(new Paragraph("\n"));
+                    documento.add(new Paragraph("\n"));
+                    documento.add(lugarTitleEvaluacion);
                     documento.newPage();
                     System.out.println("id:"+listaEvaluacionAdaptativa.get(i).get(0)+"area:"+listaEvaluacionAdaptativa.get(i).get(1)+" competencia:"+listaEvaluacionAdaptativa.get(i).get(2)+" periodo:"+listaEvaluacionAdaptativa.get(i).get(3)+" fecha:"+listaEvaluacionAdaptativa.get(i).get(4));
                     System.out.println("--:"+listaPreguntaDesempeño.size()); 

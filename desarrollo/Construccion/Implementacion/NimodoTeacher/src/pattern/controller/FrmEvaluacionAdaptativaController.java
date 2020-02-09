@@ -2,8 +2,12 @@ package pattern.controller;
 
 import interfaces.ICrudView;
 import interfaces.IView;
+import java.awt.MenuItem;
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
+import javax.swing.DefaultComboBoxModel;
 import javax.swing.JOptionPane;
 import javax.swing.event.ListSelectionEvent;
 import javax.swing.event.ListSelectionListener;
@@ -17,6 +21,7 @@ import pattern.model.Area;
 import pattern.model.EvaluacionAdaptativa;
 import pattern.model.Matriz;
 import pattern.model.Periodo;
+import pattern.model.Persona;
 import pattern.view.FrmEvaluacionAdaptativa;
 
 public class FrmEvaluacionAdaptativaController implements IView,ICrudView,ListSelectionListener{
@@ -47,6 +52,7 @@ public class FrmEvaluacionAdaptativaController implements IView,ICrudView,ListSe
     private int row;
     private String area;
     private String periodo;
+    private Map<Integer, String> mapa ;
 
     public FrmEvaluacionAdaptativaController(FrmEvaluacionAdaptativa frmEvaluacionAdaptativa,List<String> persona) {
         this.frmEvaluacionAdaptativa = frmEvaluacionAdaptativa;
@@ -83,8 +89,33 @@ public class FrmEvaluacionAdaptativaController implements IView,ICrudView,ListSe
         frmEvaluacionAdaptativa.table.setRowSorter(null);//clear filter
         model=new DefaultTableModel(){@Override public boolean isCellEditable(int row, int column) {return false;}};
         int idEstudianteMatricula = frmEvaluacionAdaptativa.txtEstudiante.getSelectedIndex();
+        System.out.println("index combo:"+idEstudianteMatricula);
+        int aux = 0;
         for(int i=0;i<listaEstudianteMatriculado.size();i++){
-            if(idEstudianteMatricula == i){idEstudianteMatricula=Integer.parseInt(listaEstudianteMatriculado.get(i).get(5));break;}
+            //if(idEstudianteMatricula == i){idEstudianteMatricula=Integer.parseInt(listaEstudianteMatriculado.get(i).get(5));break;}
+            /*int aux = 0;
+            boolean isactived = false;
+            for (Map.Entry<Integer, String> entry : mapa.entrySet()) {
+                int key = entry.getKey();
+                String value = entry.getValue();
+                if(idEstudianteMatricula == aux){
+                    System.out.println("index:"+aux+" key:"+key+" value:"+value);
+                    idEstudianteMatricula = key;
+                    isactived = true;
+                    break;
+                }
+                aux++;
+            }
+            if(isactived){break;}*/
+            if(aux ==idEstudianteMatricula){
+                idEstudianteMatricula = Integer.parseInt(listaEstudianteMatriculado.get(i).get(5));
+                System.out.println("idmatricula:"+idEstudianteMatricula);
+                System.out.println("DNI:"+listaEstudianteMatriculado.get(i).get(0));
+                System.out.println("NOMBRES:"+listaEstudianteMatriculado.get(i).get(1));
+                System.out.println("APELLIDOS:"+listaEstudianteMatriculado.get(i).get(2));
+                break;
+            }
+            aux++;
         }
         area = frmEvaluacionAdaptativa.txtArea.getSelectedItem().toString();
         periodo = frmEvaluacionAdaptativa.txtPeriodo.getSelectedItem().toString();
@@ -134,15 +165,23 @@ public class FrmEvaluacionAdaptativaController implements IView,ICrudView,ListSe
         listaEstudiante = estudianteMatriculaDao.estudiantesConMatricula();
         frmEvaluacionAdaptativa.txtEstudiante.removeAllItems();//limpiamos combo
         listaEstudianteMatriculado = new ArrayList<>();
+        //mapa = new HashMap<>();
         for(int i=0;i<listaEstudiante.size();i++){
             if(grado.equals(listaEstudiante.get(i).get(3)) && seccion.equals(listaEstudiante.get(i).get(4))){
                 frmEvaluacionAdaptativa.txtEstudiante.addItem(listaEstudiante.get(i).get(1));//new Item(1, "Test")                
+                //mapa.put(Integer.parseInt(listaEstudiante.get(i).get(5)),listaEstudiante.get(i).get(1));
                 listaEstudianteMatriculado.add(listaEstudiante.get(i));
                 //System.out.println(listaEstudianteMatriculado.get(i));
             }
         }
+    /*mapa.forEach((k,v)->{
+             System.out.println("LLave = " + k + ", Valor = " + v);
+        //Aqui llenas tu JComboBox
+        frmEvaluacionAdaptativa.txtEstudiante.addItem(v);
+       // frmEvaluacionAdaptativa.txtEstudiante.getSelectedItem().;
+    });*/
     }
-    
+   
     public void getMatriz(){
         if(listaMatriz!=null)listaMatriz.clear(); 
         listaMatriz = matrizDao.Read();

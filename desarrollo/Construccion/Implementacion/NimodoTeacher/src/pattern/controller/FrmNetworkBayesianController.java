@@ -138,15 +138,27 @@ public class FrmNetworkBayesianController implements IView,ItemListener{
     
     public void NetworkBayesian(){        
         int idEstudianteMatricula = frmNetworkBayesian.txtEstudiante.getSelectedIndex();
+        System.out.println("idcombo:"+idEstudianteMatricula);
+        int aux = 0;
         for(int i=0;i<listaEstudianteMatriculado.size();i++){
-            if(idEstudianteMatricula == i){
+            /*if(idEstudianteMatricula == i){
                 idEstudianteMatricula=Integer.parseInt(listaEstudianteMatriculado.get(i).get(5));
                 System.out.println("DNI:"+listaEstudianteMatriculado.get(i).get(0));
                 System.out.println("NOMBRES:"+listaEstudianteMatriculado.get(i).get(1));
                 System.out.println("APELLIDOS:"+listaEstudianteMatriculado.get(i).get(2));
                 dniEstudiante = listaEstudianteMatriculado.get(i).get(0);
                 break;
+            }*/
+            if(aux ==idEstudianteMatricula){
+                idEstudianteMatricula = Integer.parseInt(listaEstudianteMatriculado.get(i).get(5));
+                System.out.println("idmatricula:"+idEstudianteMatricula);
+                System.out.println("DNI:"+listaEstudianteMatriculado.get(i).get(0));
+                System.out.println("NOMBRES:"+listaEstudianteMatriculado.get(i).get(1));
+                System.out.println("APELLIDOS:"+listaEstudianteMatriculado.get(i).get(2));
+                dniEstudiante = listaEstudianteMatriculado.get(i).get(0);
+                break;
             }
+            aux++;
         }
         area = frmNetworkBayesian.txtArea.getSelectedItem().toString();
         periodo = frmNetworkBayesian.txtPeriodo.getSelectedItem().toString();        

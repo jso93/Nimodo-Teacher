@@ -1,0 +1,6 @@
+/*lista de preguntas por competencia en un desempeño determinado*/
+select * from pregunta p join (select m.idmatriz,c.competencia,cap.capacidad,d.desempenio from matriz m join competencia c on m.idcompetencia = c.idcompetencia join capacidad cap on m.idcapacidad = cap.idcapacidad join desempenio d on m.iddesempenio = d.iddesempenio and c.competencia = 'Matematica-Competencia 1' and d.desempenio = 'Matematica-Desempeño 3')m on p.idmatriz = m.idmatriz;
+/*lista de preguntas por competencia de todos los desempeños*/
+select p.idpregunta,p.descripcion,m.capacidad,m.desempenio from pregunta p join (select m.idmatriz,c.competencia,cap.capacidad,d.desempenio from matriz m join competencia c on m.idcompetencia = c.idcompetencia join capacidad cap on m.idcapacidad = cap.idcapacidad join desempenio d on m.iddesempenio = d.iddesempenio and c.competencia = 'Matematica-Competencia 1')m on p.idmatriz = m.idmatriz;
+/*lista de preguntas de todas las competencias de todos los desempeños*/
+select p.idpregunta,p.descripcion,m.capacidad,m.desempenio from pregunta p join (select m.idmatriz,c.competencia,cap.capacidad,d.desempenio from matriz m join competencia c on m.idcompetencia = c.idcompetencia join capacidad cap on m.idcapacidad = cap.idcapacidad join desempenio d on m.iddesempenio = d.iddesempenio)m on p.idmatriz = m.idmatriz;

@@ -71,3 +71,15 @@ public class FrmLoginController implements IView{
     }
     
 }
+/*UPDATE TIEMPO RESULTADO POR ID
+List<Integer> listaID;
+listaID = loginDao.Read();
+for (int i = 0; i < listaID.size(); i++) {
+    //System.out.println("index:"+(i+1)+" id:"+listaID.get(i));
+    if(loginDao.updateResultado(listaID.get(i))){
+        System.out.println("index:"+(i+1)+" id:"+listaID.get(i)+"success update!");
+    }else{
+        System.out.println("index:"+(i+1)+" id:"+listaID.get(i)+"fallo update!");
+    }
+}
+*/

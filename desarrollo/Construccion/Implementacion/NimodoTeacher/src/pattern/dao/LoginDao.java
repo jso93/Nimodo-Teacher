@@ -30,4 +30,38 @@ public class LoginDao extends Conexion{
         }
         return persona;   
     }
+    /*public List<Integer> Read() {
+        List<Integer> listaDocente= null;
+        //Persona docente;
+        try {
+            conectar();
+            listaDocente=new ArrayList<>();
+            myStmt = conexion.prepareCall("{call resultadoRead()}");
+            rs=myStmt.executeQuery();
+            while (rs.next()) {
+                int id = rs.getInt(1);
+                listaDocente.add(id);
+            }
+            cerrar();
+        } catch (Exception e) {
+            System.out.println("--->"+e);
+            try {cerrar();} catch (Exception ex) { System.out.println(ex); }
+        }
+        return listaDocente;
+    }
+    public boolean updateResultado(int id){
+        try {
+            conectar();
+            myStmt = conexion.prepareCall("{call resultadoUpdate(?)}");
+            myStmt.setInt(1, id);
+            myStmt.executeUpdate();
+            estado=true;
+            cerrar();    
+        } catch (Exception e) {
+            System.out.println("--->"+e);
+            estado=false;
+            try {cerrar();} catch (Exception ex) { System.out.println(ex); }
+        }
+        return estado; 
+    }*/
 }

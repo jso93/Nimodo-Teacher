@@ -312,7 +312,9 @@ public class FrmReporteNetworkBayesianController implements IView,ICrudView{
             Alternativa alternativa = (Alternativa)listaPreguntaDesempeño.get(i).get(4);
             boolean estado= alternativa.isSuccess();
             if(estado){
+                System.out.println("tiempo:"+listaPreguntaDesempeño.get(i).get(6).toString());
                 tiempoPreguntaCorrecta = tiempoPreguntaCorrecta + Integer.parseInt(listaPreguntaDesempeño.get(i).get(6).toString());
+                System.out.println("tiempo acumulado:"+tiempoPreguntaCorrecta);
             }else{
                 tiempoPreguntaIncorrecta = tiempoPreguntaIncorrecta + Integer.parseInt(listaPreguntaDesempeño.get(i).get(6).toString());
             }
@@ -320,6 +322,7 @@ public class FrmReporteNetworkBayesianController implements IView,ICrudView{
         if(listaPreguntaCorrecta.size()>0){
             tiempoPreguntaCorrectaPromedio = (double)tiempoPreguntaCorrecta/listaPreguntaCorrecta.size();
             tiempoPreguntaCorrectaPromedio = (double)Math.round(tiempoPreguntaCorrectaPromedio * 1d) / 1d;
+            System.out.println("tiempo redondeado:"+tiempoPreguntaCorrectaPromedio);
         }
         if(listaPreguntaIncorrecta.size()>0){
             tiempoPreguntaIncorrectaPromedio = (double)tiempoPreguntaIncorrecta/listaPreguntaIncorrecta.size();
@@ -327,6 +330,7 @@ public class FrmReporteNetworkBayesianController implements IView,ICrudView{
         }
         //tiempo formateado
         tiempoCorrecto = getTiempo(tiempoPreguntaCorrectaPromedio);
+        System.out.println("tiempo en horas:"+tiempoCorrecto);
         tiempoIncorrecto = getTiempo(tiempoPreguntaIncorrectaPromedio);
         //columnas tabla
         modelTableTE = new DefaultTableModel(){@Override public boolean isCellEditable(int row, int column) {return false;}};
